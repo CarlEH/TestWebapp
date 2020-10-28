@@ -1,0 +1,56 @@
+version: '3.7'
+services:
+    db1:
+        image: postgres:9.6
+        container_name: postgres1
+        env_file: db1.conf
+        ports:
+          - 5432:5432
+        healthcheck:
+          test: ["CMD-SHELL", "pg_isready -U admin -d app_db"]
+          interval: 10s
+          timeout: 10s
+          retries: 4
+        # volumes:
+        #   - db1_volume: /var/lib/db1
+        # environment:
+        #     - POSTGRES_USER=admin
+        #     - POSTGRES_PASSWORD=admin
+        #     - POSTGRES_DB=app_db
+        logging:
+            options:
+                max-size: 10m
+                max-file: "3"
+    # db2:
+    #     image: postgres:9.6
+    #     environment:
+    #         - POSTGRES_USER=admin
+    #         - POSTGRES_PASSWORD=admin
+    #         - POSTGRES_DB=admin
+    #     logging:
+    #         options:
+    #             max-size: 10m
+    #             max-file: "3"
+    webapp:
+      container_name: webapp
+      env_file: db1.conf
+      build: .
+      restart: always
+      depends_on:
+          db1:
+            condition: service_healthy
+          # - db2
+      environment:
+          - DEV=TRUE
+      logging:
+          options:
+              max-size: 10m
+              max-file: "3"
+      volumes:
+          - ./project:/application
+      ports:
+            - "5050:5050"
+# volumes:
+#   - db1_volume:
+#     external:
+#       name: ~/postgresdb

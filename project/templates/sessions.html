@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block content%}
+    {% for session in sessions %}
+        <article class="media content-section">
+          <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2" href="#">Session for patient {{ session.patient.patient_firstname}}</a>
+              <small class="text-muted">on {{ session.session_creation_date.strftime('%A %d, %b %Y') }}</small>
+            </div>
+            <h2><a class="article-title" href="#">Notes of session {{ session.session_id}} :</a></h2>
+            <p class="article-content">{{ session.session_notes }}</p>
+          </div>
+        </article>
+    {% endfor %}
+{% endblock content %}

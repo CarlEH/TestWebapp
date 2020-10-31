@@ -7,3 +7,5 @@ database = os.environ['POSTGRES_DB']
 port = os.environ['POSTGRES_PORT']
 
 DB_CONN_URI = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}'
+
+SECRET_KEY = os.environ['SECRET_KEY']

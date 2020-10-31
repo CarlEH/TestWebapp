@@ -21,16 +21,7 @@ services:
             options:
                 max-size: 10m
                 max-file: "3"
-    # db2:
-    #     image: postgres:9.6
-    #     environment:
-    #         - POSTGRES_USER=admin
-    #         - POSTGRES_PASSWORD=admin
-    #         - POSTGRES_DB=admin
-    #     logging:
-    #         options:
-    #             max-size: 10m
-    #             max-file: "3"
+                
     webapp:
       container_name: webapp
       env_file: db1.conf

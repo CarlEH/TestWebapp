@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+{% block content%}
+    <div class="content-section">
+        <div class="media">
+            <img class="rounded-circle account-img" src={{ image }}>
+            <div class="media-body">
+                <h3 class="account-heading">{{ current_user.user_firstname }} {{ current_user.user_lastname }}</h3>
+                <p class="text-secondary">{{ current_user.user_email }}</p>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <form method="POST" action="">
+                {{ form.hidden_tag() }}
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-4">
+                        Edit Your Account Info
+                    </legend>
+                    <div class="form-group">
+                        {{ form.firstname.label(class="form-control-label") }}
+                        {% if form.firstname.errors %}
+                            {{ form.firstname(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.firstname.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.firstname(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.lastname.label(class="form-control-label") }}
+                        {% if form.lastname.errors %}
+                            {{ form.lastname(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.lastname.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.lastname(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.age.label(class="form-control-label") }}
+                        {% if form.age.errors %}
+                            {{ form.age(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.age.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.age(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.email.label(class="form-control-label") }}
+                        {% if form.email.errors %}
+                            {{ form.email(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.email.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.email(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                </fieldset>
+                <div class="form-group">
+                        {{ form.submit(class="btn btn-outline-info") }}
+                </div>
+            </form>
+        </div>
+        <h1>Your Patients:</h1>
+        {% for patient in current_user.patients %}
+            <article class="media content-section">
+                <div class="media">
+                    <img class="rounded-circle account-img" src="{{ url_for('static', filename='profile_pics/'+patient.patient_img) }}">
+                </div>
+                <div class="media-body">
+                     <div class="article-metadata">
+                      <b><a class="mr-2" href="{{ url_for('patient', patientid=patient.patient_id) }}"> {{ patient.patient_firstname}} {{ patient.patient_lastname}}</a></b>
+                      <small class="text-muted">Added on {{ patient.patient_creation_date.strftime('%A %d, %b %Y') }}</small>
+                      
+                      <p class="text-secondary">&#9993;&nbsp;&nbsp;<a href = "mailto: {{ patient.patient_email }}">{{ patient.patient_email }}</a></p>
+                      <p class="text-secondary">&#9742;  {{ patient.patient_phone_number }}</p>
+                      <p class="text-secondary">age {{ patient.patient_age }}</p>
+                    </div>
+              </div>
+            </article>
+        {% endfor %}
+    </div>
+{% endblock content %}

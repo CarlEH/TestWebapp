@@ -105,54 +105,6 @@ def fetch_all_users():
     return jsonify(success=True, users=res)
 
 
-# @app.route("/userid/<int:userid>", methods=['GET'])
-# @login_required
-# def fetch_userid(userid):
-#     user = User.query.filter_by(id=userid).first()
-#     return jsonify(success=True, user=user.serialize)
-
-
-# @app.route("/useremail/<string:email>", methods=['GET'])
-# @login_required
-# def fetch_useremail(email):
-#     user = User.query.filter_by(user_email=email).first()
-#     return jsonify(success=True, user=user.serialize)
-
-
-# @app.route("/sessions", methods=['GET'])
-# @login_required
-# def render_all_sessions():
-#     all_sessions = Session.query.all()
-
-#     return rt('sessions.html', sessions=all_sessions)
-
-
-# @app.route("/patients", methods=['GET'])
-# @login_required
-# def fetch_all_patients():
-#     all_patients = Patient.query.all()
-#     res = []
-#     for patient in all_patients:
-#         res.append(patient.serialize)
-
-#     return jsonify(success=True, patients=res)
-
-
-# @app.route("/new/session/<int:patientid>", methods=['GET', 'POST'])
-# @login_required
-# def add_session(patientid):
-#     form = SessionForm()
-#     if form.validate_on_submit():
-#         new_sesssion = Session(session_notes=form.notes.data,
-#                                session_user_id=current_user.id, session_patient_id=patientid)
-#         db.session.add(new_sesssion)
-#         db.session.commit()
-#         flash('New Session Added!')
-#         return redirect(url_for('account',))
-
-#     return rt('new_session.html', title="New Session", form=form)
-
-
 @app.route("/new/patient", methods=['GET', 'POST'])
 @login_required
 def add_patient():
@@ -172,22 +124,6 @@ def add_patient():
         return redirect(url_for('patient', patientid=patient.patient_id))
 
     return rt('new_patient.html', title="New Patient", form=form)
-
-
-# @app.route("/patienttest", methods=['POST'])
-# @login_required
-# def patienttest():
-#     email = request.args.get('email')
-#     fname = request.args.get('fname')
-#     lname = request.args.get('lname')
-#     age = request.args.get('age')
-#     phone = request.args.get('phone')
-
-#     patient = Patient(patient_firstname=fname, patient_lastname=lname,
-#                       patient_age=age, patient_email=email, patient_phone_number=phone)
-#     db.session.add(patient)
-#     db.session.commit()
-#     return jsonify(success=True)
 
 
 @app.route("/patient/<int:patientid>", methods=['GET', 'POST'])

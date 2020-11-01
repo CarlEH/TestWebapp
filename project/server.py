@@ -204,5 +204,4 @@ def mock():
             print('session error: ', str(e))
             db.session.rollback()
             raise e
-
-    return jsonify(success=True, users=all_users, patients=all_patients, sessions=all_sessions)
+    return redirect('login')

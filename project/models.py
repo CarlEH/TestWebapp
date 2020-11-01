@@ -25,13 +25,6 @@ class User(db.Model,  UserMixin):
     patients = db.relationship(
         'Patient', backref=db.backref('nutritionist', lazy=True))
 
-    # def __init__(self, **kwargs):
-    #     #self.user_id = kwargs.get('user_id')
-    #     self.user_firstname = kwargs.get('user_firstname')
-    #     self.user_lastname = kwargs.get('user_lastname')
-    #     self.user_age = kwargs.get('user_age')
-    #     self.categories = kwargs.get('user_category')
-
     @property
     def serialize(self):
         return {'id': self.id,
@@ -59,15 +52,6 @@ class Patient(db.Model):
     sessions = db.relationship(
         'Session', backref=db.backref('patient', lazy=True))
 
-    # def __init__(self, **kwargs):
-    #     self.patient_id = kwargs.get('user_id')
-    #     self.patient_firstname = kwargs.get('patient_firstname')
-    #     self.patient_lastname = kwargs.get('patient_lastname')
-    #     self.patient_email = kwargs.get('patient_email')
-    #     self.patient_age = kwargs.get('patient_age')
-    #     self.patient_phone_number = kwargs.get('patient_phone_number')
-    #     self.user_id = kwargs.get('user_id')
-
     @property
     def serialize(self):
         return {'id': self.patient_id,
@@ -91,11 +75,6 @@ class Session(db.Model):
         'patient.patient_id'), nullable=False)
     session_creation_date = db.Column(db.DateTime(
         timezone=True), server_default=func.now())
-
-    # def __init__(self, **kwargs):
-    #     #self.note_id = kwargs.get('note_id')
-    #     self.note_content = kwargs.get('note_content')
-    #     self.note_creation_date = kwargs.get('note_creation_date')
 
     @property
     def serialize(self):

@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block content%}
+  <div class="content-section">
+    <article class="media content-section">
+      <div class="">
+          <img class="rounded-circle account-img" src="{{ url_for('static', filename='profile_pics/'+patient.patient_img) }}">
+      </div>
+      <div class="media-body">
+         <div class="article-metadata">
+          <b>{{ patient.patient_firstname}} {{ patient.patient_lastname}}</b>
+          <small class="text-muted">Added on {{ patient.patient_creation_date.strftime('%A %d, %b %Y') }}</small>
+          
+          <p class="text-secondary">&#9993;&nbsp;&nbsp;<a href = "mailto: {{ patient.patient_email }}">{{ patient.patient_email }}</a></p>
+          <p class="text-secondary">&#9742;  {{ patient.patient_phone_number }}</p>
+          <p class="text-secondary">age {{ patient.patient_age }}</p>
+        </div>
+      </div>
+      </article>
+      {% include 'new_session.html' %}
+      {% for session in patient.sessions %}
+          <article class="media content-section">
+            <div class="media-body">
+              <div class="article-metadata">
+                <a class="mr-2" href="#">Session # {{ loop.index }} </a>
+                <small class="text-muted">on {{ session.session_creation_date.strftime('%A %d, %b %Y') }}</small>
+              </div>
+              <h2>Session Notes</h2>
+              <p class="article-content">{{ session.session_notes }}</p>
+            </div>
+          </article>
+      {% endfor %}
+  </div>
+{% endblock content %}

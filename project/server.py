@@ -10,11 +10,12 @@ import random as rd
 from init import flask_app as app, bcrypt, login_manager, db
 
 from models import User, Patient, Session
+from utils import save_picture
 from forms.login_form import LoginForm
 from forms.account_form import AccountForm
+from forms.session_form import SessionForm
+from forms.patient_form import PatientForm
 
-
-#app, bcrypt, db, login_manager = init.create_app()
 
 os.environ['TZ'] = 'Europe/Paris'
 time.tzset()
@@ -32,9 +33,14 @@ def health():
     return jsonify(success=True, process=os.getpid(), date=date)
 
 
-@app.route("/about", methods=['GET'])
-def about():
-    return rt('about.html', title='About')
+@app.route("/faq", methods=['GET'])
+def faq():
+    return rt('faq.html', title='About')
+
+
+@app.route("/", methods=['GET'])
+def index():
+    return redirect(url_for('account'))
 
 
 @app.route("/account", methods=['GET', 'POST'])
@@ -42,7 +48,10 @@ def about():
 def account():
     form = AccountForm()
     if form.validate_on_submit():
-        print(f'firstname:{current_user.user_firstname} lastname: {current_user.user_lastname} email: {current_user.user_lastname} age: {current_user.user_age}', flush=True)
+        if form.picture.data:
+            picture_file = save_picture(form.picture.data, app)
+            current_user.user_img = picture_file
+
         current_user.user_firstname = form.firstname.data
         current_user.user_lastname = form.lastname.data
         current_user.user_age = form.age.data
@@ -57,6 +66,8 @@ def account():
         form.email.data = current_user.user_email
 
     img = url_for('static', filename=f'profile_pics/{current_user.user_img}')
+    current_user.patients.sort(key=lambda p:  p.patient_lastname)
+
     return rt('account.html', title='Account', image=img, form=form)
 
 
@@ -67,7 +78,8 @@ def login():
         user = User.query.filter_by(user_email=form.email.data.strip()).first()
         if user and bcrypt.check_password_hash(user.user_password, form.password.data):
             login_user(user, remember=form.remember.data)
-            flash(f'Welcome to your workspace {form.email.data}!', 'success')
+            flash(
+                f'Welcome to your workspace {user.user_firstname}!', 'success')
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('account'))
 
@@ -93,91 +105,115 @@ def fetch_all_users():
     return jsonify(success=True, users=res)
 
 
-@app.route("/userid/<int:userid>", methods=['GET'])
-@login_required
-def fetch_userid(userid):
-    user = User.query.filter_by(id=userid).first()
-    # user = User.query.filter(User.id=userid).first()
-    return jsonify(success=True, user=user.serialize)
+# @app.route("/userid/<int:userid>", methods=['GET'])
+# @login_required
+# def fetch_userid(userid):
+#     user = User.query.filter_by(id=userid).first()
+#     return jsonify(success=True, user=user.serialize)
 
 
-@app.route("/useremail/<string:email>", methods=['GET'])
-@login_required
-def fetch_useremail(email):
-    user = User.query.filter_by(user_email=email).first()
-    return jsonify(success=True, user=user.serialize)
+# @app.route("/useremail/<string:email>", methods=['GET'])
+# @login_required
+# def fetch_useremail(email):
+#     user = User.query.filter_by(user_email=email).first()
+#     return jsonify(success=True, user=user.serialize)
 
 
-@app.route("/add", methods=['GET'])
-def add_user():
-    fname = request.args.get('fname')
-    lname = request.args.get('lname')
-    age = request.args.get('age')
-    category = request.args.get('category')
+# @app.route("/sessions", methods=['GET'])
+# @login_required
+# def render_all_sessions():
+#     all_sessions = Session.query.all()
 
-    user = User(user_firstname=fname, user_lastname=lname,
-                user_age=age, user_category=Category(category_name=category))
-    db.session.add(user)
-    db.session.commit()
-    return jsonify(success=True)
+#     return rt('sessions.html', sessions=all_sessions)
 
 
-@app.route("/addnote", methods=['GET'])
-@login_required
-def add_note():
-    note = request.args.get('note')
+# @app.route("/patients", methods=['GET'])
+# @login_required
+# def fetch_all_patients():
+#     all_patients = Patient.query.all()
+#     res = []
+#     for patient in all_patients:
+#         res.append(patient.serialize)
 
-    note = Note(note_content=content)
-    db.session.add(note)
-    db.session.commit()
-    return jsonify(success=True)
-
-
-@app.route("/sessions", methods=['GET'])
-@login_required
-def render_all_sessions():
-    all_sessions = Session.query.all()
-
-    return rt('sessions.html', sessions=all_sessions)
+#     return jsonify(success=True, patients=res)
 
 
-@app.route("/addpatient", methods=['GET'])
+# @app.route("/new/session/<int:patientid>", methods=['GET', 'POST'])
+# @login_required
+# def add_session(patientid):
+#     form = SessionForm()
+#     if form.validate_on_submit():
+#         new_sesssion = Session(session_notes=form.notes.data,
+#                                session_user_id=current_user.id, session_patient_id=patientid)
+#         db.session.add(new_sesssion)
+#         db.session.commit()
+#         flash('New Session Added!')
+#         return redirect(url_for('account',))
+
+#     return rt('new_session.html', title="New Session", form=form)
+
+
+@app.route("/new/patient", methods=['GET', 'POST'])
 @login_required
 def add_patient():
-    email = request.args.get('email')
-    fname = request.args.get('fname')
-    lname = request.args.get('lname')
-    age = request.args.get('age')
-    phone = request.args.get('phone')
+    form = PatientForm()
+    patient = None
+    if form.validate_on_submit():
+        if form.picture.data:
+            picture_file = save_picture(form.picture.data, app)
+            patient = Patient(patient_firstname=form.firstname.data, patient_lastname=form.lastname.data, user_id=current_user.id,
+                              patient_age=form.age.data, patient_email=form.email.data, patient_phone_number=form.number.data, patient_img=picture_file)
+        else:
+            patient = Patient(patient_firstname=form.firstname.data, patient_lastname=form.lastname.data, user_id=current_user.id,
+                              patient_age=form.age.data, patient_email=form.email.data, patient_phone_number=form.number.data)
+        db.session.add(patient)
+        db.session.commit()
+        flash('New Patient Added!', 'success')
+        return redirect(url_for('patient', patientid=patient.patient_id))
 
-    patient = Patient(patient_firstname=fname, patient_lastname=lname,
-                      patient_age=age, patient_email=email, patient_phone_number=phone)
-    db.session.add(patient)
-    db.session.commit()
-    return jsonify(success=True)
-
-
-@app.route("/patients", methods=['GET'])
-@login_required
-def fetch_all_patients():
-    all_patients = Patient.query.all()
-    res = []
-    for patient in all_patients:
-        res.append(patient.serialize)
-
-    return jsonify(success=True, patients=res)
+    return rt('new_patient.html', title="New Patient", form=form)
 
 
-@app.route("/patient/<int:patientid>", methods=['GET'])
+# @app.route("/patienttest", methods=['POST'])
+# @login_required
+# def patienttest():
+#     email = request.args.get('email')
+#     fname = request.args.get('fname')
+#     lname = request.args.get('lname')
+#     age = request.args.get('age')
+#     phone = request.args.get('phone')
+
+#     patient = Patient(patient_firstname=fname, patient_lastname=lname,
+#                       patient_age=age, patient_email=email, patient_phone_number=phone)
+#     db.session.add(patient)
+#     db.session.commit()
+#     return jsonify(success=True)
+
+
+@app.route("/patient/<int:patientid>", methods=['GET', 'POST'])
 @login_required
 def patient(patientid):
     patient = Patient.query.filter_by(patient_id=patientid).first()
+    patient.sessions.sort(key=lambda s: s.session_creation_date)
 
-    return jsonify(success=True, patient=patient.serialize)
+    form = SessionForm()
+    if form.validate_on_submit():
+        new_sesssion = Session(session_notes=form.notes.data,
+                               session_user_id=current_user.id, session_patient_id=patientid)
+        db.session.add(new_sesssion)
+        db.session.commit()
+        flash('New Session Added!', "success")
+        return redirect(url_for('patient', patientid=patientid))
+
+    return rt('patient.html', patient=patient, form=form)
 
 
 @app.route("/mock", methods=['GET'])
 def mock():
+    firstnames = ['Emily', 'Djamila', 'Sophie', 'John',
+                  'Alan', 'David', 'Daniel', 'Richard', 'Kevin', 'Stephy', 'Camille', 'Guillaume', 'Dani']
+    lastnames = ['Doe', 'Smith', 'Chirac', 'Van Hertzen',
+                 'Ali', 'Girard', 'Campion', 'Holler', 'Dimitrios', 'Schwartz', 'Lee', 'Vamaux']
 
     all_users = []
 
@@ -206,9 +242,11 @@ def mock():
             db.session.rollback()
 
     all_patients = []
-    for i in range(5):
-        patient = Patient(patient_firstname=f'john{rd.randint(1,1000)}', patient_lastname=f'doe{rd.randint(1,1000)}',
-                          patient_age=rd.randint(10, 100), patient_email=f'john{rd.randint(1,1000)}@doe.co',
+    for i in range(10):
+        patient = Patient(patient_firstname=firstnames[rd.randint(0, len(firstnames) - 1)],
+                          patient_lastname=lastnames[
+                              rd.randint(0, len(lastnames) - 1)],
+                          patient_age=rd.randint(10, 100), patient_email=f'email{rd.randint(1,1000)}@mail.com',
                           patient_phone_number=f'+336776655{rd.randint(10,99)}', user_id=all_users[0]['id'])
         try:
             db.session.add(patient)
@@ -218,9 +256,10 @@ def mock():
             print('patient error: ', str(e))
             db.session.rollback()
     all_sessions = []
-    for i in range(10):
-        ses = Session(session_notes=f'jot down something: {rd.randint(1,1000)}', session_user_id=all_users[
-                      0]['id'], session_patient_id=all_patients[rd.randint(0, len(all_patients) - 1)]['id'])
+    for i in range(20):
+        ses = Session(session_notes=f'jot down something: lorem ipsum \n {rd.randint(1,1000)} \n looks promising', session_user_id=all_users[
+                      0]['id'], session_patient_id=all_patients[rd.randint(0, len(all_patients) - 1)]['id'],
+                      session_creation_date=datetime.datetime(year=2020, month=rd.randint(1, 12), day=rd.randint(1, 28)))
         try:
             db.session.add(ses)
             db.session.commit()

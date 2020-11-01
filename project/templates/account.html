@@ -10,7 +10,7 @@
         </div>
 
         <div class="content-section">
-            <form method="POST" action="">
+            <form method="POST" action="" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
                 <fieldset class="form-group">
                     <legend class="border-bottom mb-4">
@@ -68,6 +68,15 @@
                             {{ form.email(class="form-control form-control-lg") }}
                         {% endif %}
                     </div>
+                    <div class="form-group">
+                        {{ form.picture.label() }}
+                        {{ form.picture(class="form-control-file") }}
+                        {% if form.picture.errors %}
+                            {% for error in form.picture.errors %}
+                                <span class="text-danger">{{ error }}</span></br>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
                 </fieldset>
                 <div class="form-group">
                         {{ form.submit(class="btn btn-outline-info") }}
@@ -76,21 +85,28 @@
         </div>
         <h1>Your Patients:</h1>
         {% for patient in current_user.patients %}
-            <article class="media content-section">
-                <div class="media">
-                    <img class="rounded-circle account-img" src="{{ url_for('static', filename='profile_pics/'+patient.patient_img) }}">
-                </div>
-                <div class="media-body">
-                     <div class="article-metadata">
-                      <b><a class="mr-2" href="{{ url_for('patient', patientid=patient.patient_id) }}"> {{ patient.patient_firstname}} {{ patient.patient_lastname}}</a></b>
-                      <small class="text-muted">Added on {{ patient.patient_creation_date.strftime('%A %d, %b %Y') }}</small>
-                      
-                      <p class="text-secondary">&#9993;&nbsp;&nbsp;<a href = "mailto: {{ patient.patient_email }}">{{ patient.patient_email }}</a></p>
-                      <p class="text-secondary">&#9742;  {{ patient.patient_phone_number }}</p>
-                      <p class="text-secondary">age {{ patient.patient_age }}</p>
-                    </div>
-              </div>
-            </article>
+            <a style="display:block" href="{{ url_for('patient', patientid=patient.patient_id) }}">
+                <article class="media content-section">
+                    
+                        <div class="media">
+                            <img class="rounded-circle account-img" src="{{ url_for('static', filename='profile_pics/'+patient.patient_img) }}">
+                        </div>
+                        <div class="media-body">
+                             <div class="article-metadata">
+                              <b>{{ patient.patient_firstname}} {{ patient.patient_lastname}}</b>
+                              <small class="text-muted">Added on {{ patient.patient_creation_date.strftime('%A %d, %b %Y') }}</small>
+                              
+                              <p class="text-secondary">&#9993;&nbsp;&nbsp;{{ patient.patient_email }}</p>
+                              <p class="text-secondary">&#9742;  {{ patient.patient_phone_number }}</p>
+                              <p class="text-secondary">age {{ patient.patient_age }}</p>
+                            </div>
+                      </div>
+                    
+                </article>
+            </a>
         {% endfor %}
+        <div class="form-group">
+            <a href="{{ url_for('add_patient') }}" class="btn btn-outline-info">New Patient</a>
+        </div>
     </div>
 {% endblock content %}

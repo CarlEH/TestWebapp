@@ -1,9 +1,9 @@
 # Test Webapp
 
-##This small project works as a CMS or BackOffice tool that allows its users to take notes and manage sessions with their patients
+## This small project works as a CMS or BackOffice tool that allows its users to take notes and manage sessions with their patients
 
-###How to launch it
-- clone thhis repo into your machine
+### How to launch it
+- clone this repo into your machine
 - make sure that you have docker installed on your machine, you can download it from https://www.docker.com/
 - once that is done open up a terminal and execute these 2 commands in the folder where you cloned this repo
  - docker-compose build

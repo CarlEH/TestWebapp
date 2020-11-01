@@ -11,12 +11,6 @@ services:
           interval: 10s
           timeout: 10s
           retries: 4
-        # volumes:
-        #   - db1_volume: /var/lib/db1
-        # environment:
-        #     - POSTGRES_USER=admin
-        #     - POSTGRES_PASSWORD=admin
-        #     - POSTGRES_DB=app_db
         logging:
             options:
                 max-size: 10m
@@ -41,7 +35,3 @@ services:
           - ./project:/application
       ports:
             - "5050:5050"
-# volumes:
-#   - db1_volume:
-#     external:
-#       name: ~/postgresdb

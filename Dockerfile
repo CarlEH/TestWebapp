@@ -4,7 +4,7 @@ RUN python -m venv venv
 RUN venv/bin/pip3 install --upgrade pip
 RUN venv/bin/pip3 install -r requirements.txt
 
-COPY project/* application/
+COPY project/ application/
 ENV FLASK_DEBUG=1
 EXPOSE 5050
 WORKDIR application/

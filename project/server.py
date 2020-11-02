@@ -33,6 +33,11 @@ def health():
     return jsonify(success=True, process=os.getpid(), date=date)
 
 
+@app.route("/health", methods=['GET'])
+def health():
+    return jsonify(success=True)
+
+
 @app.route("/faq", methods=['GET'])
 def faq():
     return rt('faq.html', title='About')

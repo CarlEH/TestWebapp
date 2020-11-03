@@ -170,9 +170,8 @@ def mock():
         db.session.rollback()
 
     for i in range(2):
-            f'password{rd.randint(1,1000)}').decode('utf-8')
-        user=User(user_firstname = 'Dr.', user_lastname = f'smith{rd.randint(1,1000)}', user_password = hsd_pswd,
-                    user_age = rd.randint(25, 65), user_email = f'doc{rd.randint(1,100)}@cuure.co')
+        user = User(user_firstname='Dr.', user_lastname=f'smith{rd.randint(1,1000)}', user_password=hsd_pswd,
+                    user_age=rd.randint(25, 65), user_email=f'doc{rd.randint(1,100)}@cuure.co')
         try:
             db.session.add(user)
             db.session.commit()
@@ -181,13 +180,13 @@ def mock():
             print('user error: ', str(e))
             db.session.rollback()
 
-    all_patients=[]
+    all_patients = []
     for i in range(10):
-        patient=Patient(patient_firstname = firstnames[rd.randint(0, len(firstnames) - 1)],
-                          patient_lastname = lastnames[
-                              rd.randint(0, len(lastnames) - 1)],
-                          patient_age = rd.randint(10, 100), patient_email = f'email{rd.randint(1,1000)}@mail.com',
-                          patient_phone_number = f'+336776655{rd.randint(10,99)}', user_id = all_users[0]['id'])
+        patient = Patient(patient_firstname=firstnames[rd.randint(0, len(firstnames) - 1)],
+                          patient_lastname=lastnames[
+            rd.randint(0, len(lastnames) - 1)],
+            patient_age=rd.randint(10, 100), patient_email=f'email{rd.randint(1,1000)}@mail.com',
+            patient_phone_number=f'+336776655{rd.randint(10,99)}', user_id=all_users[0]['id'])
         try:
             db.session.add(patient)
             db.session.commit()
@@ -195,11 +194,11 @@ def mock():
         except:
             print('patient error: ', str(e))
             db.session.rollback()
-    all_sessions=[]
+    all_sessions = []
     for i in range(20):
-        ses=Session(session_notes = f'jot down something: lorem ipsum \n {rd.randint(1,1000)} \n looks promising', session_user_id = all_users[
-                      0]['id'], session_patient_id = all_patients[rd.randint(0, len(all_patients) - 1)]['id'],
-                      session_creation_date=datetime.datetime(year=2020, month=rd.randint(1, 12), day=rd.randint(1, 28)))
+        ses = Session(session_notes=f'jot down something: lorem ipsum \n {rd.randint(1,1000)} \n looks promising', session_user_id=all_users[
+            0]['id'], session_patient_id=all_patients[rd.randint(0, len(all_patients) - 1)]['id'],
+            session_creation_date=datetime.datetime(year=2020, month=rd.randint(1, 12), day=rd.randint(1, 28)))
         try:
             db.session.add(ses)
             db.session.commit()

@@ -8,5 +8,5 @@ COPY project/ application/
 ENV FLASK_DEBUG=1
 EXPOSE 5050
 WORKDIR application/
-CMD ../venv/bin/gunicorn --workers=1 --bind 0.0.0.0:5050 server:app
+CMD ../venv/bin/gunicorn --threads=2  --bind 0.0.0.0:5050 server:app
 

@@ -1,4 +1,4 @@
-from flask import request, jsonify, render_template as rt, url_for, flash, redirect
+from flask import request, jsonify, render_template as rt, url_for, flash, redirect, session
 from flask_bcrypt import Bcrypt
 from flask_login import login_user, logout_user, login_required, current_user
 import os
@@ -78,24 +78,43 @@ def account():
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(user_email=form.email.data.strip()).first()
-        if user and bcrypt.check_password_hash(user.user_password, form.password.data):
-            login_user(user, remember=form.remember.data)
-            flash(
-                f'Welcome to your workspace {user.user_firstname}!', 'success')
-            next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('account'))
+    app.logger.debug(f'session: {session}')
+    if current_user.is_authenticated:
+        app.logger.debug('user already logged in')
+        return redirect(url_for('account'))
 
+    form = LoginForm()
+
+    if request.method == 'POST':
+        app.logger.info('user login in progress')
+
+        if form.validate_on_submit():
+            user = User.query.filter_by(
+                user_email=form.email.data.strip()).first()
+            if user and bcrypt.check_password_hash(user.user_password, form.password.data):
+                login_user(user, remember=form.remember.data)
+                flash(
+                    f'Welcome to your workspace {user.user_firstname}!', 'success')
+
+                next_page = request.args.get('next')
+                return redirect(next_page) if next_page else redirect(url_for('account'))
+
+            else:
+                app.logger.debug('form passwd not valid')
+                flash('Please check you email/password and try again', 'danger')
         else:
-            flash('Please check you email/password and try again', 'danger')
+            app.logger.debug(f'form errors: {form.errors}')
+
+    elif request.method == 'GET':
+        app.logger.info('user login page loaded')
+
     return rt('login.html', title='Login', form=form)
 
 
 @app.route("/logout", methods=['GET'])
 @login_required
 def logout():
+    app.logger.info('user logout in progress')
     logout_user()
     return redirect(url_for('login'))
 

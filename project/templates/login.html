@@ -2,11 +2,18 @@
 {% block content %}
     <div class="content-section">
         <form method="POST" action="">
-            {{ form.hidden_tag() }}
+            {{ form.hidden_tag() }}  
             <fieldset class="form-group">
                 <legend class="border-bottom mb-4">
                     Login to your workspace
                 </legend>
+                {% if form.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
                 <div class="form-group">
                     {{ form.email.label(class="form-control-label") }}
                     {% if form.email.errors %}
